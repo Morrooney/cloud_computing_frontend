@@ -1,4 +1,3 @@
-import 'dart:js';
 
 
 import 'package:cloud_computing_frontend/UI/pages/docent/docent_home_page.dart';
@@ -16,7 +15,7 @@ import 'package:cloud_computing_frontend/model/objects/message_model.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:universal_html/html.dart';
+
 
 import 'UI/pages/common/chat_page.dart';
 import 'UI/pages/common/recent_chats.dart';
