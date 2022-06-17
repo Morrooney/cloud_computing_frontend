@@ -22,6 +22,14 @@ class _SignupPageState extends State<SignupPage> {
   late String _email;
   late String _password;
   late bool _isAStudent;
+  late bool _passwordVisibile;
+
+  @override
+  void initState()
+  {
+    _passwordVisibile = false;
+  }
+
 
 
   final _formKey = GlobalKey<FormState>();
@@ -87,11 +95,26 @@ class _SignupPageState extends State<SignupPage> {
                                   labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red.shade900),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      // Based on passwordVisible state choose the icon
+                                      _passwordVisibile
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: Theme.of(context).primaryColorDark,
+                                    ),
+                                    onPressed: () {
+                                      // Update the state i.e. toogle the state of passwordVisible variable
+                                      setState(() {
+                                        _passwordVisibile = !_passwordVisibile;
+                                      });
+                                    },
+                                  ),
                                 ),
                                 validator: (value) => _validatePassword(value!),
                                 onSaved: (value) => _password = value!,
                                 onFieldSubmitted: null,
-                                obscureText: true,
+                                obscureText: !_passwordVisibile,
                               ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 10.0)),
                               Row(

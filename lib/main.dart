@@ -8,9 +8,10 @@ import 'package:cloud_computing_frontend/UI/pages/common/files_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/common/login.dart';
 import 'package:cloud_computing_frontend/UI/pages/student/student_home_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/student_registration_page.dart';
-import 'package:cloud_computing_frontend/UI/pages/common/theses_page.dart';
+import 'package:cloud_computing_frontend/UI/pages/docent/theses_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/common/thesis_details.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/thesis_registration_page.dart';
+import 'package:cloud_computing_frontend/UI/pages/student/student_personal_page.dart';
 import 'package:cloud_computing_frontend/model/objects/message_model.dart';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ void main() {
         StudentHomePage.route: (context) => StudentHomePage(),
         DocentHomePage.route: (context) => DocentHomePage(),
         DocentProfilePage.route: (context) => DocentProfilePage(),
+        StudentProfilePage.route: (context) => StudentProfilePage(),
         ThesisDetails.route: (context) => ThesisDetails(),
         AddStudentPage.route: (context) => AddStudentPage(),
         DocentProfileChatPage.route: (context) => DocentProfileChatPage(),

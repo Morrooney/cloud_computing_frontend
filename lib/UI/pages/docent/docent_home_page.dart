@@ -3,11 +3,14 @@ import 'package:cloud_computing_frontend/UI/pages/common/recent_chats.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/docent_personal_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/common/login.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/student_registration_page.dart';
-import 'package:cloud_computing_frontend/UI/pages/common/theses_page.dart';
+import 'package:cloud_computing_frontend/UI/pages/docent/theses_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/thesis_registration_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../components/circular_profile.dart';
+import '../../components/home_widget.dart';
 
 class DocentHomePage extends StatefulWidget {
   static const String route = '/docentHomePage';
@@ -17,8 +20,19 @@ class DocentHomePage extends StatefulWidget {
 }
 
 class _DocentHomePageState extends State<DocentHomePage> {
-  //User user;
 
+
+  late bool _docentObtained = false;
+  late String _docentName;
+  late String _docentSurname;
+  late String _docentEmail;
+
+  @override
+  void initState()
+  {
+   _pullData();
+   super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +51,8 @@ class _DocentHomePageState extends State<DocentHomePage> {
     return new Drawer(
       child: new ListView(
         children: <Widget>[
-          Padding(
-              padding: const EdgeInsets.all(50),
-              child: Center(child: CircularProgressIndicator())),
+          if(_docentObtained)_docentObtained? HomeWidget(70,_docentName,_docentSurname,_docentEmail): _attendData(),
+          SizedBox(height: 20,),
           InkWell(
             onTap: () {
               Navigator.of(context).pushNamed(DocentProfilePage.route);
@@ -113,5 +126,21 @@ class _DocentHomePageState extends State<DocentHomePage> {
     );
   }
 
+  _attendData(){
+    return Padding(
+        padding: const EdgeInsets.all(50),
+        child:Center(child: CircularProgressIndicator()));
+  }
+
+
+  Future<void> _pullData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState((){
+      _docentName = sharedPreferences.getString('name')!;
+      _docentSurname = sharedPreferences.getString('surname')!;
+      _docentEmail = sharedPreferences.getString('email')!;
+      _docentObtained = true;
+    });
+  }
 
 }

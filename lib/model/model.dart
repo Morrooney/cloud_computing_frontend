@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 
 import 'package:cloud_computing_frontend/model/objects/entity/student.dart';
+import 'package:cloud_computing_frontend/model/objects/entity/thesis.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_computing_frontend/model/support/constants.dart';
 import 'package:cloud_computing_frontend/model/support/login_result.dart';
@@ -77,8 +78,8 @@ class Model{
       }
       _restManager.token = _authenticationData.accessToken;
       _sharedPreferences = await SharedPreferences.getInstance();
-      _sharedPreferences.setString('token', _authenticationData.accessToken);
-      Timer.periodic(Duration(seconds: (_authenticationData.expiresIn - 50)), (Timer t) {
+      _sharedPreferences.setString('token', _authenticationData.accessToken!);
+      Timer.periodic(Duration(seconds: (_authenticationData.expiresIn! - 50)), (Timer t) {
         _refreshToken();
       });
       return LoginResult.logged;
@@ -103,7 +104,7 @@ class Model{
       }
       _restManager.token = _authenticationData.accessToken;
       _sharedPreferences = await SharedPreferences.getInstance();
-      _sharedPreferences.setString('token', _authenticationData.accessToken);
+      _sharedPreferences.setString('token', _authenticationData.accessToken!);
       return true;
     }
     catch (e) {
@@ -111,7 +112,70 @@ class Model{
     }
   }
 
-  /*
+
+
+  Future<Student?> searchStudentByEmail(String email) async {
+    Map<String, dynamic> params = Map();
+    params["student_email"] = email;
+    try{
+      Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SEARCH_STUDENT_BY_EMAIL, params);
+      //print(response.body.toString());
+      if( response.statusCode == HttpStatus.notFound )return null;
+      return Student.fromJson(jsonDecode(response.body));
+    }
+    catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<Docent?> searchDocentByEmail(String email) async {
+    Map<String, dynamic> params = Map();
+    params["docent_email"] = email;
+    try{
+      Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SEARCH_DOCENT_BY_EMAIL, params);
+      //print(response.body.toString());
+      if( response.statusCode == HttpStatus.notFound )return null;
+      return Docent.fromJson(jsonDecode(response.body));
+    }
+    catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+
+  Future<List<Thesis>?> showDocentThesis(String docentEmail) async {
+    Map<String, String> params = Map();
+    params["docent_email"] = docentEmail;
+    try{
+      Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SHOW_DOCENT_THESES, params);
+      if( response.statusCode == HttpStatus.notFound ) return null;
+      List<Thesis> result =  List<Thesis>.from(json.decode(response.body).map((i) => Thesis.fromJson(i)).toList());
+      return result;
+    }
+    catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<Thesis?> showStudentThesis(String docentEmail) async {
+    Map<String, String> params = Map();
+    params["student_email"] = docentEmail;
+    try{
+      Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SHOW_STUDENT_THESES, params);
+      if( response.statusCode == HttpStatus.notFound ) return null;
+      Thesis result = Thesis.fromJson(json.decode(response.body));
+      return result;
+    }
+    catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+/*
   Future<bool> logOut() async {
     try{
       Map<String, dynamic> params = Map();

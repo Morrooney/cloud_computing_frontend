@@ -3,8 +3,12 @@ import 'package:cloud_computing_frontend/UI/pages/student/student_personal_page.
 import 'package:cloud_computing_frontend/UI/pages/common/thesis_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../model/model.dart';
+import '../../../model/objects/entity/thesis.dart';
 import '../../components/dialog_window.dart';
+import '../../components/home_widget.dart';
 import '../common/recent_chats.dart';
 
 class StudentHomePage extends StatefulWidget {
@@ -17,13 +21,18 @@ class StudentHomePage extends StatefulWidget {
 
 class _StudentHomePageState extends State<StudentHomePage> {
 
-  //User user;
+
+  late bool _studentObtained = false;
+  late String _studentName;
+  late String _studentSurname;
+  late String _studentEmail;
 
   @override
-  void initState(){
+  void initState()
+  {
+    _pullData();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +50,11 @@ class _StudentHomePageState extends State<StudentHomePage> {
           ),
         ],
       ),
-      drawer: new Drawer( // disegno tre stecche
+      drawer: new Drawer(
         child:new ListView(
           children:<Widget>[
-//          header
-            Padding(padding: const EdgeInsets.all(50),child: Center(child:CircularProgressIndicator())),
-//          body
-            InkWell(
-              onTap: null,
-              child: ListTile(
-                title: Text("Home Page"),
-                leading: Icon(Icons.home),
-              ),
-            ),
+            if(_studentObtained)_studentObtained? HomeWidget(70,_studentName,_studentSurname,_studentEmail): _attendData(),
+            SizedBox(height: 20,),
             InkWell(
               onTap: (){
                 Navigator.of(context).pushNamed(StudentProfilePage.route);
@@ -64,9 +65,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               ),
             ),
             InkWell(
-              onTap:(){
-                Navigator.of(context).pushNamed(ThesisDetails.route);
-              },
+              onTap:(){_getStudentThesis();},
               child: ListTile(
                 title: Text("My Thesis"),
                 leading: Icon(Icons.book),
@@ -74,6 +73,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
             ),
             InkWell(
               onTap: () {
+
                 Navigator.of(context).pushNamed(RecentChats.route);
               },
               child: ListTile(
@@ -110,5 +110,30 @@ class _StudentHomePageState extends State<StudentHomePage> {
     );
   }
 
+  Future<void> _getStudentThesis() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String docentEmail = sharedPreferences.getString('email')!;
+    Model.sharedInstance.showStudentThesis(docentEmail).then((value){
+      Navigator.of(context).pushNamed(
+        ThesisDetails.route,
+        arguments: value!.toJson(),
+      );
+    });
+  }
+  _attendData(){
+    return Padding(
+        padding: const EdgeInsets.all(50),
+        child:Center(child: CircularProgressIndicator()));
+  }
+
+  Future<void> _pullData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState((){
+      _studentName = sharedPreferences.getString('name')!;
+      _studentSurname = sharedPreferences.getString('surname')!;
+      _studentEmail = sharedPreferences.getString('email')!;
+      _studentObtained = true;
+    });
+  }
 }
 

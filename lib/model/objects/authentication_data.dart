@@ -1,8 +1,8 @@
 class AuthenticationData {
-  String accessToken;
-  String refreshToken;
-  String error;
-  int expiresIn;
+  String? accessToken;
+  String? refreshToken;
+  String? error;
+  int? expiresIn;
 
 
   AuthenticationData({required this.accessToken, required this.refreshToken, required this.error, required this.expiresIn,});

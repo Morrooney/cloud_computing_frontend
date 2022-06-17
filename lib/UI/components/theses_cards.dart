@@ -1,6 +1,10 @@
 import 'package:cloud_computing_frontend/UI/pages/common/thesis_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../model/model.dart';
+import '../../model/objects/entity/thesis.dart';
 
 
 class ThesesCards extends StatefulWidget {
@@ -12,52 +16,51 @@ class ThesesCards extends StatefulWidget {
 
 class _ThesesCardsState extends State<ThesesCards> {
 
-  bool ordiniOttenuti = true;
+  bool tesiOttenute = false;
 
-  /*
-  List<BookInPurchase> books_in_the_purchases;
+
+  late List<Thesis> _docentTheses;
 
   @override
-  Future<void> initState() {
-    _getPurchases();
+  void initState() {
+    _getDocentThesis();
     super.initState();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ordiniOttenuti? new ListView.builder(
-        itemCount: 1,
+    return tesiOttenute? new ListView.builder(
+        itemCount: _docentTheses.length,
         itemBuilder: (context, index) {
-          return SingleCardThesis();
+          return SingleCardThesis(thesis: _docentTheses[index],);
         }
     ) : Center(child:CircularProgressIndicator());
   }
-/*
 
-  Future<void> _getPurchases() async {
+
+  Future<void> _getDocentThesis() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    int id = sharedPreferences.getInt("id");
-    Model.sharedInstance.showUserPurchases(id).then((result){
-      List<BookInPurchase> ret = new List<BookInPurchase>();
-      for(Purchase purchase in result)
-      {
-        for(BookInPurchase bookInPurchase in purchase.booksInPurchase)
-        {
-          ret.add(bookInPurchase);
-        }
-      }
+    String docentEmail = sharedPreferences.getString('email')!;
+    Model.sharedInstance.showDocentThesis(docentEmail).then((result){
       setState((){
-        ordiniOttenuti = true;
-        books_in_the_purchases = ret;
+        tesiOttenute = true;
+        _docentTheses = result!;
       });
     });
   }
-*/
 }
 
-class SingleCardThesis extends StatelessWidget {
+class SingleCardThesis extends StatefulWidget {
 
+  Thesis thesis;
 
+  SingleCardThesis({required this.thesis});
+
+  @override
+  State<SingleCardThesis> createState() => _SingleCardThesisState();
+}
+
+class _SingleCardThesisState extends State<SingleCardThesis> {
 
   @override
   Widget build(BuildContext context) {
@@ -78,14 +81,14 @@ class SingleCardThesis extends StatelessWidget {
 //======================================== title section ==============================
           title: new Container(
             padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
-            child: new Text('nome tesi'),
+            child: new Text('${widget.thesis.title}'),
           ),
 // =============================== subtitle section ================================
           subtitle: new Container(
             alignment: Alignment.topLeft,
             padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
             child: new Text(
-              "tesista",
+              "${widget.thesis.thesisStudent.name} "+"${widget.thesis.thesisStudent.surname}",
               style: TextStyle(
                 fontSize: 17.0,
                 fontWeight: FontWeight.bold,
@@ -98,7 +101,10 @@ class SingleCardThesis extends StatelessWidget {
             splashRadius: 20,
             icon: new Icon(Icons.arrow_forward),
             onPressed: (){
-              Navigator.of(context).pushNamed(ThesisDetails.route);
+              Navigator.of(context).pushNamed(
+                  ThesisDetails.route,
+                  arguments: widget.thesis.toJson(),
+              );
             },
           ),
         ),
@@ -106,6 +112,9 @@ class SingleCardThesis extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

@@ -1,7 +1,10 @@
+import 'dart:html';
+
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:cloud_computing_frontend/UI/pages/common/docent_page_chat.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../model/objects/entity/thesis.dart';
 import '../../components/circular_profile.dart';
 import '../../components/dialog_window.dart';
 import 'dropped_file_page.dart';
@@ -18,7 +21,9 @@ class ThesisDetails extends StatefulWidget {
 
 class _ThesisDetailsState extends State<ThesisDetails> {
 
+
  late bool _isAStudent = false;
+ late Thesis thesis;
 
  @override
  void initState(){
@@ -28,6 +33,12 @@ class _ThesisDetailsState extends State<ThesisDetails> {
 
   @override
   Widget build(BuildContext context) {
+
+    Map<String,dynamic> args = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
+
+    thesis = Thesis.fromJson(args);
+
+
     return Scaffold(
       appBar: new AppBar(
         elevation: 0.1,
@@ -48,7 +59,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
               ),
               Padding(
                   padding: EdgeInsets.all(15.0),
-                  child: new Text("titolo tesi")
+                  child: new Text("${thesis.title}")
               ),
             ],
           ),
@@ -64,7 +75,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
               ),
               Padding(
                   padding: EdgeInsets.all(15.0),
-                  child: new Text("tipo tesi")
+                  child: new Text("${thesis.type}")
               ),
             ],
           ),
@@ -84,7 +95,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
                     onTap: _isAStudent? (){
                       Navigator.of(context).pushNamed(DocentProfileChatPage.route);
                     }:null,
-                    child: CirculaProfile(75.0,'S','M'),
+                    child: CirculaProfile(75.0,"${thesis.mainSupervisor.name}",'${thesis.mainSupervisor.surname}'),
                   ),
                 ),
               ],
@@ -154,7 +165,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
                     onTap: _isAStudent? null:(){
                       Navigator.of(context).pushNamed(DocentProfileChatPage.route);
                     },
-                    child: CirculaProfile(75.0,'S','M'),
+                    child: CirculaProfile(75.0,'${thesis.thesisStudent.name}','${thesis.thesisStudent.surname}'),
                   ),
                 ),
               ],

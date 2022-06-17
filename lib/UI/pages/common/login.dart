@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
+import '../../../model/model.dart';
+import '../../../model/objects/entity/docent.dart';
+import '../../../model/objects/entity/student.dart';
 import '../../../model/support/login_result.dart';
 import '../docent/docent_home_page.dart';
 import 'package:cloud_computing_frontend/UI/components/dialog_window.dart';
@@ -22,6 +25,14 @@ class _LoginPageState extends State<LoginPage> {
   late LoginResult _loginResult;
   late String _email;
   late String _password;
+  late bool _isAStudent;
+  late bool _passwordVisibile;
+
+  @override
+  void initState()
+  {
+   _passwordVisibile = false;
+  }
 
   final _formKey = GlobalKey<FormState>();
 
@@ -62,8 +73,8 @@ class _LoginPageState extends State<LoginPage> {
                               fontWeight: FontWeight.bold,
                               color:Colors.red.shade900),
                         ),
-                        validator: null,
-                        onSaved: null,
+                        validator: (value) => _validateEmail(value!),
+                        onSaved: (value) => _email = value!,
                         onFieldSubmitted: null,
                       ),
                       Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
@@ -75,11 +86,26 @@ class _LoginPageState extends State<LoginPage> {
                           labelStyle: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.red.shade900),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                // Based on passwordVisible state choose the icon
+                                _passwordVisibile
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context).primaryColorDark,
+                              ),
+                              onPressed: () {
+                                // Update the state i.e. toogle the state of passwordVisible variable
+                                setState(() {
+                                  _passwordVisibile = !_passwordVisibile;
+                                });
+                              },
+                            ),
                         ),
-                        validator: null,
-                        onSaved: null,
+                        validator: (value) => _validatePassword(value!),
+                        onSaved: (value) => _password = value!,
                         onFieldSubmitted: null,
-                        obscureText: true,
+                        obscureText: !_passwordVisibile,
                       ),
                       Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
                       Row(
@@ -87,8 +113,8 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: GestureDetector(
                             onTap: (){
-                              _docentLogin();
-                              Navigator.of(context).pushNamed(DocentHomePage.route);
+                              _isAStudent = false;
+                              _login();
                             },
                             child: Container(
                               height: 40.0,
@@ -111,8 +137,8 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: GestureDetector(
                             onTap:  (){
-                              _studentLogin();
-                              Navigator.of(context).pushNamed(StudentHomePage.route);
+                              _isAStudent = true;
+                              _login();
                             },
                             child: Container(
                               height: 40.0,
@@ -168,14 +194,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _showErrorDialog(String title, String message) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DialogWindow(title: title, content: message);
-        });
-  }
-
   _validateEmail(String value) {
     if (value.isEmpty || value == null) {
       return "required";
@@ -194,35 +212,38 @@ class _LoginPageState extends State<LoginPage> {
       return null;
   }
 
-  Future<void> _studentLogin() async{
-    _sharedPreferences = await SharedPreferences.getInstance();
-    _sharedPreferences.setBool("isAStudent", true);
-  }
-
-  Future<void> _docentLogin() async{
-    _sharedPreferences = await SharedPreferences.getInstance();
-    _sharedPreferences.setBool("isAStudent", false);
-  }
- /* Future<void> _login() async {
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Processing Data'),
         duration: Duration(seconds: 1),
       ));
 
+      _sharedPreferences = await SharedPreferences.getInstance();
+      _sharedPreferences.setBool("isAStudent", _isAStudent);
+
       await _getToken();
       switch (_loginResult) {
-        case LoginResult.logged:
+        case (LoginResult.logged):
           {
-            //print(_email);
-            User user = await Model.sharedInstance.searchUserByEmail(_email);
-            //print(user);
-            if (user != null) {
-              user.setUserPrefs();
-              Navigator.push(context,MaterialPageRoute(builder: (context) =>  new HomePage()));
+            Student? student;
+            Docent? docent;
+            if(_isAStudent)
+            student = await Model.sharedInstance.searchStudentByEmail(_email);
+            else  docent = await Model.sharedInstance.searchDocentByEmail(_email);
+            if (student != null) {
+              student.setUserPrefs();
+              Navigator.of(context).pushNamed(StudentHomePage.route);
             }
-            else _showErrorDialog("Utente non trovato", "email o password sbagliata");
+            else if(student == null && _isAStudent){
+              _showErrorDialog("Studente non trovato", "email o password sbagliata");
+            }
+            else if(docent != null){
+              docent.setUserPrefs();
+              Navigator.of(context).pushNamed(DocentHomePage.route);
+            }
+            else _showErrorDialog("Docente non trovato", "email o password sbagliata");
           }
           break;
         case LoginResult.error_wrong_credentials:
@@ -245,9 +266,18 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _loginResult = loginResult;
     });
-  }*/
+  }
 
   void checkAutoLogIn() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => new LoginPage()));
+   // Navigator.push(context, MaterialPageRoute(builder: (context) => new HomePage()));
   }
+
+  _showErrorDialog(String title, String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DialogWindow(title: title, content: message);
+        });
+  }
+
 }

@@ -1,6 +1,9 @@
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
+import 'package:cloud_computing_frontend/model/objects/entity/docent.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../model/objects/entity/student.dart';
 import '../../components/circular_profile.dart';
 import '../../components/row_detail.dart';
 
@@ -8,7 +11,7 @@ import '../../components/row_detail.dart';
 
 class StudentProfilePage extends StatefulWidget {
 
-  static const String route = '/docentProfile';
+  static const String route = '/studentProfile';
 
 
   @override
@@ -17,14 +20,14 @@ class StudentProfilePage extends StatefulWidget {
 
 class _StudentProfilePageState extends State<StudentProfilePage> {
 
-  //User user;
+  late Student _student;
+  late bool _studentObtained = false;
 
-  /*
   @override
   void initState(){
     _pullData();
     super.initState();
-  }*/
+  }
 
 
   @override
@@ -33,67 +36,79 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
     return Scaffold(
       appBar:buildAppBar(context),
-      body:ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child:CirculaProfile(100.0,'S','M'),
-            ),
-          ),
-          const SizedBox(height:24),
-          buildName(),
-          Divider(),
-          RowDetail("FirstName","name"),
-          Divider(),
-          RowDetail("LastName","surname"),
-          Divider(),
-          RowDetail("Email","email"),
-          Divider(),
-          RowDetail("Department","department"),
-          Divider(),
-          RowDetail("Degree Course","degree course"),
-          Divider(),
-          RowDetail("registration number","name"),
-          Divider(),
-        ],
-      ),
+      body: _studentObtained? _buildBody() : _attendData(),
     );
   }
 
 
-  Widget buildName() => Column(
+  _buildBody()
+  {
+   return ListView(
+     physics: BouncingScrollPhysics(),
+     children: [
+       Center(
+         child: Padding(
+           padding: const EdgeInsets.all(10),
+           child:CirculaProfile(100.0,'S','M'),
+         ),
+       ),
+       const SizedBox(height:10),
+       _buildName(),
+       const SizedBox(height:24),
+       Divider(),
+       RowDetail("FirstName","${_student.name}"),
+       Divider(),
+       RowDetail("LastName","${_student.surname}"),
+       Divider(),
+       RowDetail("Email","${_student.email}"),
+       Divider(),
+       RowDetail("Department","${_student.department}"),
+       Divider(),
+       RowDetail("Degree Course","${_student.degreeCourse}"),
+       Divider(),
+       RowDetail("registration number","${_student.registrationNumber}"),
+       Divider(),
+     ],
+   );
+  }
+
+  Widget _buildName() => Column(
     children: [
       Text(
-        'Stefano',
+        '${_student.name}',
         style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
       ),
       const SizedBox(height: 4),
       Text(
-        'Morrone',
+        '${_student.surname}',
         style: TextStyle(color: Colors.grey),
       )
     ],
   );
 
-/*
 
   Future<void> _pullData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      User user1 = new User(
-          firstName : sharedPreferences.getString('firstName'),
-          lastName : sharedPreferences.getString('lastName'),
-          address :sharedPreferences.getString('address'),
-          email :sharedPreferences.getString('email'),
-          telephoneNumber : sharedPreferences.getString('telephoneNumber'),
-          id : sharedPreferences.getInt('id'));
-      user = user1;
+      _student = new Student(
+          name : sharedPreferences.getString('name')!,
+          surname : sharedPreferences.getString('surname')!,
+          email :sharedPreferences.getString('email')!,
+          department : sharedPreferences.getString('department')!,
+          registrationNumber: sharedPreferences.getString('registrationNumber')!,
+          id : sharedPreferences.getInt('id')!,
+          degreeCourse: sharedPreferences.getString('degreeCourse')!,);
+      _studentObtained = true;
     });
 
     // print(user.toString() + "*");
-  }*/
+  }
+}
+
+_attendData(){
+  return Padding(
+      padding: const EdgeInsets.all(50),
+      child:Center(child: CircularProgressIndicator()));
 }
 
 AppBar buildAppBar(BuildContext context)
