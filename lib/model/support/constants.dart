@@ -35,6 +35,8 @@ const String REQUEST_NEW_STUDENT = "/accounting/newStudent";
 const String REQUEST_SEARCH_STUDENT_BY_EMAIL="/Student/showStudent" ;
 const String REQUEST_SHOW_STUDENT_THESES = "/Student/studentThesis";
 
+//message
+const String REQUEST_SHOW_UNREAD_MESSAGE = "/Message/notifyMessage";
 // messages
 const String MESSAGE_CONNECTION_ERROR = "connection_error";
 

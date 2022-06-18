@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
+import 'package:cloud_computing_frontend/UI/components/supervisors_list.dart';
 import 'package:cloud_computing_frontend/UI/pages/common/docent_page_chat.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ class ThesisDetails extends StatefulWidget {
 class _ThesisDetailsState extends State<ThesisDetails> {
 
 
- late bool _isAStudent = false;
+ String userEmail = '';
  late Thesis thesis;
 
  @override
@@ -39,7 +40,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
     thesis = Thesis.fromJson(args);
 
 
-    return Scaffold(
+    return (userEmail == '')? CircularProgressIndicator() :Scaffold(
       appBar: new AppBar(
         elevation: 0.1,
         backgroundColor: Colors.red.shade700,
@@ -92,7 +93,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
                   child:
                   InkWell(
                     borderRadius: BorderRadius.circular(75),
-                    onTap: _isAStudent? (){
+                    onTap: (userEmail != thesis.mainSupervisor.email)? (){
                       Navigator.of(context).pushNamed(DocentProfileChatPage.route);
                     }:null,
                     child: CirculaProfile(75.0,"${thesis.mainSupervisor.name}",'${thesis.mainSupervisor.surname}'),
@@ -102,54 +103,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
             ),
           ),
           Divider(),
-          _buildSectionTitle("Supervisors"),
-          Divider(),
-          Container(
-            height: 165,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12.0, 10.0, 10.0, 5.0),
-                  child:
-                  InkWell(
-                    borderRadius: BorderRadius.circular(75),
-                    onTap: _isAStudent? (){
-                      Navigator.of(context).pushNamed(DocentProfileChatPage.route);
-                    }:null,
-                    child: CirculaProfile(75.0,'S','M'),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12.0, 10.0, 10.0, 5.0),
-                  child:
-                  InkWell(
-                    borderRadius: BorderRadius.circular(75),
-                    onTap: _isAStudent? (){
-                      Navigator.of(context).pushNamed(DocentProfileChatPage.route);
-                    }:null,
-                    child: CirculaProfile(75.0,'S','M'),
-                  ),
-                ),
-                if(!_isAStudent) Padding(
-                  padding: const EdgeInsets.fromLTRB(25,10.0, 10.0, 5.0),
-                  child: FloatingActionButton(
-                    backgroundColor: Colors.red.shade900,
-                    onPressed:(){
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return _buildAlertInteraction();
-                          });
-                    },
-                    tooltip: 'Increment Counter',
-                    child: const Icon(Icons.add),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Divider(),
+          if(thesis.supervisors?.length != 0 ) _buildSupervisorsSection(),
           _buildSectionTitle("Thesis student"),
           Divider(),
           Container(
@@ -162,7 +116,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
                   child:
                   InkWell(
                     borderRadius: BorderRadius.circular(75),
-                    onTap: _isAStudent? null:(){
+                    onTap: (userEmail == thesis.thesisStudent.email)? null:(){
                       Navigator.of(context).pushNamed(DocentProfileChatPage.route);
                     },
                     child: CirculaProfile(75.0,'${thesis.thesisStudent.name}','${thesis.thesisStudent.surname}'),
@@ -178,6 +132,41 @@ class _ThesisDetailsState extends State<ThesisDetails> {
         ],
       ),
     );
+  }
+
+
+  _buildSupervisorsSection(){
+     return Column(
+       children: [
+         _buildSectionTitle("Supervisors"),
+         Divider(),
+         Row(
+           children: [
+             SupervisorsList(supervisors: thesis.supervisors,userEmail: userEmail),
+             if(userEmail == thesis.mainSupervisor.email)  _buildButtomToAddUser(),
+           ],
+         ),
+         Divider(),
+       ],
+     );
+  }
+
+  _buildButtomToAddUser(){
+   return Padding(
+     padding: const EdgeInsets.fromLTRB(25,10.0, 10.0, 5.0),
+     child: FloatingActionButton(
+       backgroundColor: Colors.red.shade900,
+       onPressed:(){
+         showDialog(
+             context: context,
+             builder: (context) {
+               return _buildAlertInteraction();
+             });
+       },
+       tooltip: 'Increment Counter',
+       child: const Icon(Icons.add),
+     ),
+   );
   }
 
   _buildCard(){
@@ -293,7 +282,7 @@ class _ThesisDetailsState extends State<ThesisDetails> {
  Future<void> _pullData() async {
    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
    setState((){
-     _isAStudent = sharedPreferences.getBool("isAStudent")??false;
+     userEmail = sharedPreferences.getString("email")!;
    });
  }
 

@@ -9,8 +9,9 @@ class Thesis{
   String type;
   Student thesisStudent;
   Docent mainSupervisor;
+  List<Docent>? supervisors;
 
-  Thesis({required this.id,required this.title, required this.type, required this.thesisStudent, required this.mainSupervisor});
+  Thesis({required this.id,required this.title, required this.type, required this.thesisStudent, required this.mainSupervisor,this.supervisors});
 
   factory Thesis.fromJson(Map<String, dynamic> json) {
     return Thesis(
@@ -18,7 +19,8 @@ class Thesis{
       title: json['title'],
       type: json['type'],
       thesisStudent: Student.fromJson(json["thesisStudent"]),
-      mainSupervisor: Docent.fromJson(json["mainSupervisor"])
+      mainSupervisor: Docent.fromJson(json["mainSupervisor"]),
+      supervisors: json['supervisors'] == null? null : List<Docent>.from(json["supervisors"].map((i) => Docent.fromJson(i)).toList()),
     );
   }
 
@@ -29,5 +31,6 @@ class Thesis{
     'type': type,
     'thesisStudent': thesisStudent.toJson(),
     'mainSupervisor': mainSupervisor.toJson(),
+    'supervisors': supervisors == null? null : supervisors?.map((i) => i.toJson()).toList(),
   };
 }

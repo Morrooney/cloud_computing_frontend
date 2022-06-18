@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 
+import 'package:cloud_computing_frontend/model/objects/entity/message_count.dart';
 import 'package:cloud_computing_frontend/model/objects/entity/student.dart';
 import 'package:cloud_computing_frontend/model/objects/entity/thesis.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -167,6 +168,21 @@ class Model{
       Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SHOW_STUDENT_THESES, params);
       if( response.statusCode == HttpStatus.notFound ) return null;
       Thesis result = Thesis.fromJson(json.decode(response.body));
+      return result;
+    }
+    catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<List<MessageCount>?> showUnreadChat(String receiverEmail) async {
+    Map<String, String> params = Map();
+    params["receiver_email"] = receiverEmail;
+    try{
+      Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SHOW_UNREAD_MESSAGE, params);
+      if( response.statusCode == HttpStatus.notFound ) return null;
+      List<MessageCount> result =  List<MessageCount>.from(json.decode(response.body).map((i) => MessageCount.fromJson(i)).toList());
       return result;
     }
     catch (e) {

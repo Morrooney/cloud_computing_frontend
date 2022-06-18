@@ -77,8 +77,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 Navigator.of(context).pushNamed(RecentChats.route);
               },
               child: ListTile(
-                title: Text("Recent Chats"),
-                leading: Icon(CupertinoIcons.chat_bubble_text_fill),
+                title: Text("notifications"),
+                leading: Icon(CupertinoIcons.bell),
               ),
             ),
             Divider(),

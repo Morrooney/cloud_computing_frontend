@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../model/model.dart';
+import '../../../model/objects/entity/message_count.dart';
 import '../../../model/objects/message_model.dart';
 import 'chat_page.dart';
 
@@ -14,6 +17,17 @@ class RecentChats extends StatefulWidget {
 }
 
 class _RecentChatsState extends State<RecentChats> {
+
+  bool notificheOttenute = false;
+  late List<MessageCount> notifications;
+
+  @override
+  void initState()
+  {
+    _pullData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,9 +37,9 @@ class _RecentChatsState extends State<RecentChats> {
         centerTitle: true,
         title: Text("Thesis"),
       ),
-      body: Column(
+      body:notificheOttenute? Column(
         children: <Widget>[
-          Expanded(
+          if(notifications.length != 0)Expanded(
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).accentColor,
@@ -34,7 +48,7 @@ class _RecentChatsState extends State<RecentChats> {
                   topRight: Radius.circular(30.0),
                 ),
               ),
-              child: Column(
+              child:Column(
                 children: <Widget>[
                   _buildRecentChat(),
                 ],
@@ -42,11 +56,26 @@ class _RecentChatsState extends State<RecentChats> {
             ),
           ),
         ],
-      ),
+      ) : _attendData(),
     );
   }
 
+  _pullData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String userEmail = sharedPreferences.getString('email')!;
+    Model.sharedInstance.showUnreadChat(userEmail).then((result){
+      setState((){
+        notifications = result!;
+        notificheOttenute = true;
+      });
+    });
+  }
 
+  _attendData(){
+    return Padding(
+        padding: const EdgeInsets.all(50),
+        child:Center(child: CircularProgressIndicator()));
+  }
  _buildRecentChat(){
    return Expanded(
      child: Container(
@@ -55,24 +84,17 @@ class _RecentChatsState extends State<RecentChats> {
        ),
        child: ClipRRect(
          child: ListView.builder(
-           itemCount: chats.length,
+           itemCount: notifications.length,
            itemBuilder: (BuildContext context, int index) {
-             final Message chat = chats[index];
+             final MessageCount chat = notifications[index];
              return GestureDetector(
-               onTap: () => Navigator.push(
-                 context,
-                 MaterialPageRoute(
-                   builder: (_) => ChatPage(
-                     user: chat.sender,
-                   ),
-                 ),
-               ),
+               onTap: null,
                child: Container(
                  margin: EdgeInsets.only(top: 5.0, bottom: 5.0, right: 20.0, left:10.0),
                  padding:
                  EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                  decoration: BoxDecoration(
-                   color: chat.unread ? Color(0xFFFFEFEE) : Colors.white,
+                   color: Color(0xFFFFEFEE),
                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
                  ),
                  child: Row(
@@ -82,14 +104,16 @@ class _RecentChatsState extends State<RecentChats> {
                        children: <Widget>[
                          CircleAvatar(
                            radius: 35.0,
-                           backgroundImage: AssetImage(chat.sender.imageUrl),
+                           child: Text(
+                             chat.sender.name.substring(0,1)+" "+chat.sender.surname.substring(0,1),
+                           ),
                          ),
                          SizedBox(width: 10.0),
                          Column(
                            crossAxisAlignment: CrossAxisAlignment.start,
                            children: <Widget>[
                              Text(
-                               chat.sender.name,
+                               chat.sender.name +" "+ chat.sender.surname,
                                style: TextStyle(
                                  color: Colors.grey,
                                  fontSize: 15.0,
@@ -97,7 +121,7 @@ class _RecentChatsState extends State<RecentChats> {
                                ),
                              ),
                              SizedBox(height: 5.0),
-                             Container(
+                             /*Container(
                                width: MediaQuery.of(context).size.width * 0.45,
                                child: Text(
                                  chat.text,
@@ -108,7 +132,7 @@ class _RecentChatsState extends State<RecentChats> {
                                  ),
                                  overflow: TextOverflow.ellipsis,
                                ),
-                             ),
+                             ),*/
                            ],
                          ),
                        ],
@@ -116,7 +140,7 @@ class _RecentChatsState extends State<RecentChats> {
                      Column(
                        children: <Widget>[
                          Text(
-                           chat.time,
+                           chat.total.toString(),
                            style: TextStyle(
                              color: Colors.grey,
                              fontSize: 15.0,
@@ -124,8 +148,7 @@ class _RecentChatsState extends State<RecentChats> {
                            ),
                          ),
                          SizedBox(height: 5.0),
-                         chat.unread
-                             ? Container(
+                         Container(
                            width: 40.0,
                            height: 20.0,
                            decoration: BoxDecoration(
@@ -141,8 +164,7 @@ class _RecentChatsState extends State<RecentChats> {
                                fontWeight: FontWeight.bold,
                              ),
                            ),
-                         )
-                             : Text(''),
+                         ),
                        ],
                      ),
                    ],
