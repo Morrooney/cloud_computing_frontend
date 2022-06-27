@@ -1,7 +1,9 @@
 import 'package:cloud_computing_frontend/UI/components/dialog_window.dart';
-import 'package:cloud_computing_frontend/UI/pages/common/recent_chats.dart';
+import 'package:cloud_computing_frontend/UI/pages/common/notifications_page.dart';
+import 'package:cloud_computing_frontend/UI/pages/common/search.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/docent_personal_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/common/login.dart';
+import 'package:cloud_computing_frontend/UI/pages/docent/docent_registration_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/student_registration_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/theses_page.dart';
 import 'package:cloud_computing_frontend/UI/pages/docent/thesis_registration_page.dart';
@@ -22,7 +24,7 @@ class DocentHomePage extends StatefulWidget {
 class _DocentHomePageState extends State<DocentHomePage> {
 
 
-  late bool _docentObtained = false;
+  bool _docentObtained = false;
   late String _docentName;
   late String _docentSurname;
   late String _docentEmail;
@@ -41,7 +43,19 @@ class _DocentHomePageState extends State<DocentHomePage> {
         elevation: 0.1,
         backgroundColor: Colors.red.shade900,
         centerTitle: true,
-        title: Text("Thesis"),
+        title: Text("Home"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            iconSize: 30.0,
+            color: Colors.white,
+            onPressed: () {
+              Navigator.of(context).pushNamed(
+                  Search.route
+              );
+            },
+          ),
+        ],
       ),
       drawer: _buildMenu(),
     );
@@ -77,7 +91,16 @@ class _DocentHomePageState extends State<DocentHomePage> {
             },
             child: ListTile(
               title: Text("Add Student"),
-              leading: Icon(Icons.add_circle),
+              leading: Icon(Icons.person_add_alt),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.of(context).pushNamed(AddDocentPage.route);
+            },
+            child: ListTile(
+              title: Text("Add Docent"),
+              leading: Icon(Icons.person_add),
             ),
           ),
           InkWell(
@@ -91,7 +114,7 @@ class _DocentHomePageState extends State<DocentHomePage> {
           ),
           InkWell(
             onTap: () {
-              Navigator.of(context).pushNamed(RecentChats.route);
+              Navigator.of(context).pushNamed(NotificationsPage.route);
             },
             child: ListTile(
               title: Text("notifications"),

@@ -9,7 +9,7 @@ import '../../model/objects/file_data_model.dart';
 
 class DroppedFileWidget extends StatelessWidget {
 
-  final File_Data_Model? file;
+  final FileDataModel? file;
   const DroppedFileWidget({Key? key, required this.file}) : super(key: key);
 
   @override
@@ -51,7 +51,7 @@ class DroppedFileWidget extends StatelessWidget {
     );
   }
 
-  Widget buildFileDetail(File_Data_Model? file) {
+  Widget buildFileDetail(FileDataModel? file) {
     final style = TextStyle( fontSize: 20);
     return Container(
       margin: EdgeInsets.only(left: 24),

@@ -1,8 +1,10 @@
+import 'package:cloud_computing_frontend/model/objects/entity/thesis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
+import '../../../model/model.dart';
 import '../../../model/objects/file_data_model.dart';
 import '../../components/drop_zone_widget.dart';
 import '../../components/dropped_file_widget.dart';
@@ -19,7 +21,13 @@ class DropFilePage extends StatefulWidget {
 class _DropFilePageState extends State<DropFilePage> {
 
   late bool _isAStudent = false;
-  File_Data_Model? file;
+  FileDataModel? _file;
+  late Thesis _thesis;
+  late String _userEmail;
+  late String _text;
+  late String _receiverEmail;
+  final _textController = TextEditingController();
+  final _emailController = TextEditingController();
 
   @override
   void initState(){
@@ -29,6 +37,11 @@ class _DropFilePageState extends State<DropFilePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    Map<String,dynamic> args = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
+
+    _thesis = Thesis.fromJson(args);
+
     return Scaffold(
       appBar: new AppBar(
         elevation: 0.1,
@@ -60,9 +73,15 @@ class _DropFilePageState extends State<DropFilePage> {
                   child: Row(
                     children: <Widget>[
                       Expanded(
-                        child: TextField(
+                        child: TextFormField(
+                          controller: _emailController,
                           textCapitalization: TextCapitalization.sentences,
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            _receiverEmail = value;
+                          },
+                          onFieldSubmitted: (value) {
+                            _receiverEmail = value;
+                          },
                           decoration: InputDecoration.collapsed(
                             hintText: 'Write the email',
                           ),
@@ -89,9 +108,15 @@ class _DropFilePageState extends State<DropFilePage> {
                   child: Row(
                     children: <Widget>[
                       Expanded(
-                        child: TextField(
+                        child: TextFormField(
+                          controller: _textController,
                           textCapitalization: TextCapitalization.sentences,
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            _text = value;
+                          },
+                          onFieldSubmitted: (value) {
+                            _text = value;
+                          },
                           decoration: InputDecoration.collapsed(
                             hintText: 'text ...',
                           ),
@@ -106,16 +131,19 @@ class _DropFilePageState extends State<DropFilePage> {
                 Container(
                   height: 300,
                   child: DropZoneWidget(
-                    onDroppedFile: (file) => setState(()=> this.file = file) ,
+                    onDroppedFile: (file) => setState(()=> this._file = file) ,
                   ),
                 ),
                 SizedBox(height: 20,),
-                DroppedFileWidget(file:file ),
+                DroppedFileWidget(file:_file ),
 
                 SizedBox(height: 20,),
 
                 GestureDetector(
-                  onTap: null,
+                  onTap: (){
+                    _sendMessage();
+                    _uploadFile();
+                    },
                   child: Container(
                     height: 80.0,
                     width: 250.0,
@@ -144,7 +172,22 @@ class _DropFilePageState extends State<DropFilePage> {
   Future<void> _pullData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState((){
+      _userEmail = sharedPreferences.getString("email")!;
       _isAStudent = sharedPreferences.getBool("isAStudent")??false;
     });
   }
+
+  _sendMessage() async{
+    Model.sharedInstance.sendMessage(_userEmail,_receiverEmail,_text).then((value){
+      _textController.clear();
+      _emailController.clear();
+    });
+  }
+
+  _uploadFile() async{
+    Model.sharedInstance.uploadFiles(_userEmail,_thesis.id,1,_file).then((result){
+      print(result!.statusCode.toString());
+    });
+  }
+
 }

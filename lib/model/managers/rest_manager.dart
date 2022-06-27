@@ -3,7 +3,8 @@ import 'dart:io';
 
 
 import 'package:http/http.dart';
-
+import 'package:http_parser/http_parser.dart';
+import '../objects/file_data_model.dart';
 import '../support/constants.dart';
 import '../support/error_listener.dart';
 
@@ -12,6 +13,37 @@ enum TypeHeader { json, urlencoded, multipart }
 class RestManager {
   // ErrorListener delegate;
   String? token;
+
+  Future<StreamedResponse> makeMultiPartRequest(
+      String serverAddress, String servicePath, dynamic files,
+      {Map<String, dynamic>? value, bool httpsEnabled = false}) async {
+    Uri uri;
+    if (httpsEnabled)
+      uri = Uri.https(serverAddress, servicePath,value);
+    else
+      uri = Uri.http(serverAddress, servicePath,value);
+    MultipartRequest request = MultipartRequest('POST', uri);
+    Map<String, String> headers = new Map();
+    //headers[HttpHeaders.authorizationHeader] = 'bearer $token';
+    request.headers.addAll(headers);
+
+    if (files is List<FileDataModel>){
+      for (FileDataModel file in files)
+        request.files.add(
+            MultipartFile(
+                'file', file.stream, file.bytes, filename: file.name,
+                contentType: MediaType.parse(file.mime)
+            )
+        );
+    } else if( files is FileDataModel)
+      request.files.add(
+          MultipartFile('file', files.stream, files.bytes, filename: files.name, contentType: MediaType.parse(files.mime))
+      );
+    else throw Exception();
+    print(uri.toString());
+    StreamedResponse res = await request.send();
+    return res;
+  }
 
   Future<Response> _makeRequest(
       String serverAddress, String servicePath, String method, {TypeHeader? type,

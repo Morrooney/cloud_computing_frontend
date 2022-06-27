@@ -1,9 +1,17 @@
+import 'package:cloud_computing_frontend/model/objects/entity/file.dart';
+import 'package:cloud_computing_frontend/model/objects/entity/thesis.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../model/model.dart';
 
 
 class ThesisFiles extends StatefulWidget {
 
+  int thesisId;
+
+  ThesisFiles({required this.thesisId});
 
   @override
   _ThesisFilesState createState() => _ThesisFilesState();
@@ -11,52 +19,43 @@ class ThesisFiles extends StatefulWidget {
 
 class _ThesisFilesState extends State<ThesisFiles> {
 
-  bool ordiniOttenuti = true;
-
-  /*
-  List<BookInPurchase> books_in_the_purchases;
+  bool fileTesiOttenuti = false;
+  late List<File> _thesisFiles;
 
   @override
-  Future<void> initState() {
-    _getPurchases();
+  void initState() {
+    _getThesisFiles();
     super.initState();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ordiniOttenuti? new ListView.builder(
-        itemCount: 1,
+    return fileTesiOttenuti? new ListView.builder(
+        itemCount: _thesisFiles.length,
         itemBuilder: (context, index) {
-          return SingleCartFile();
+          return SingleCartFile(
+            file : _thesisFiles[index],
+          );
         }
     ) : Center(child:CircularProgressIndicator());
   }
-  /*
 
-  Future<void> _getPurchases() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    int id = sharedPreferences.getInt("id");
-    Model.sharedInstance.showUserPurchases(id).then((result){
-      List<BookInPurchase> ret = new List<BookInPurchase>();
-      for(Purchase purchase in result)
-      {
-        for(BookInPurchase bookInPurchase in purchase.booksInPurchase)
-        {
-          ret.add(bookInPurchase);
-        }
-      }
+  Future<void> _getThesisFiles() async {
+    Model.sharedInstance.getThesisFiles(widget.thesisId).then((result){
       setState((){
-        ordiniOttenuti = true;
-        books_in_the_purchases = ret;
+        fileTesiOttenuti = true;
+        _thesisFiles = result!;
       });
     });
   }
-*/
+
 }
 
 class SingleCartFile extends StatelessWidget {
 
+ File file;
 
+ SingleCartFile({required this.file});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +67,7 @@ class SingleCartFile extends StatelessWidget {
         margin: EdgeInsets.fromLTRB(6.0,10, 6.0, 4.0),
         elevation: 3,
         child: ListTile(
-// ============================== LEADING SECTION ================================
+
           leading: InkWell(
             borderRadius: BorderRadius.circular(20) ,
             onTap: (){},
@@ -77,17 +76,17 @@ class SingleCartFile extends StatelessWidget {
               onPressed: null,
             ),
           ),
-//======================================== title section ==============================
+
           title: new Container(
             padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
-            child: new Text('nome file'),
+            child: new Text(file.fileName),
           ),
-// =============================== subtitle section ================================
+
           subtitle: new Container(
             alignment: Alignment.topLeft,
-            padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
+            padding: const EdgeInsets.fromLTRB(0.0, 0.0, 3.0, 6.0),
             child: new Text(
-              "data",
+              "owner: "+ file.owner,
               style: TextStyle(
                 fontSize: 17.0,
                 fontWeight: FontWeight.bold,
@@ -101,14 +100,16 @@ class SingleCartFile extends StatelessWidget {
             child: new Row(
               children: <Widget>[
                 new Text(
-                  "size",
+                  "update time: "+ file.updateTime,
                   //style: TextStyle(),
                 ),
                 Padding(padding: const EdgeInsets.only(left: 5.0,right: 2.0)),
                 new IconButton(
                   splashRadius: 20,
                   icon: new Icon(Icons.download_rounded),
-                  onPressed: () {},
+                  onPressed: () {
+                    Model.sharedInstance.downloadFile(file.id);
+                  },
                 ),
               ],
             ),

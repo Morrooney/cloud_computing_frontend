@@ -3,22 +3,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../model/model.dart';
 import '../../../model/objects/entity/message_count.dart';
-import '../../../model/objects/message_model.dart';
+
+import '../docent/docent_home_page.dart';
+import '../student/student_home_page.dart';
 import 'chat_page.dart';
 
 
-class RecentChats extends StatefulWidget {
+class NotificationsPage extends StatefulWidget {
 
   static const String route = '/recentChatPage';
-  const RecentChats({Key? key}) : super(key: key);
+  const NotificationsPage({Key? key}) : super(key: key);
 
   @override
-  State<RecentChats> createState() => _RecentChatsState();
+  State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _RecentChatsState extends State<RecentChats> {
+class _NotificationsPageState extends State<NotificationsPage> {
 
-  bool notificheOttenute = false;
+  bool obtainedNotifications = false;
+  late bool _isAStudent;
   late List<MessageCount> notifications;
 
   @override
@@ -37,7 +40,7 @@ class _RecentChatsState extends State<RecentChats> {
         centerTitle: true,
         title: Text("Thesis"),
       ),
-      body:notificheOttenute? Column(
+      body:obtainedNotifications? Column(
         children: <Widget>[
           if(notifications.length != 0)Expanded(
             child: Container(
@@ -60,22 +63,6 @@ class _RecentChatsState extends State<RecentChats> {
     );
   }
 
-  _pullData() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String userEmail = sharedPreferences.getString('email')!;
-    Model.sharedInstance.showUnreadChat(userEmail).then((result){
-      setState((){
-        notifications = result!;
-        notificheOttenute = true;
-      });
-    });
-  }
-
-  _attendData(){
-    return Padding(
-        padding: const EdgeInsets.all(50),
-        child:Center(child: CircularProgressIndicator()));
-  }
  _buildRecentChat(){
    return Expanded(
      child: Container(
@@ -88,7 +75,12 @@ class _RecentChatsState extends State<RecentChats> {
            itemBuilder: (BuildContext context, int index) {
              final MessageCount chat = notifications[index];
              return GestureDetector(
-               onTap: null,
+               onTap: (){
+                 Navigator.of(context).pushNamed(
+                     ChatPage.route,
+                     arguments: {"senderEmail": chat.sender.email},
+                 ).then((value) => _pullData());
+               },
                child: Container(
                  margin: EdgeInsets.only(top: 5.0, bottom: 5.0, right: 20.0, left:10.0),
                  padding:
@@ -177,7 +169,28 @@ class _RecentChatsState extends State<RecentChats> {
      ),
    );
  }
+
+  _pullData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    _isAStudent = sharedPreferences.getBool('isAStudent')!;
+    String userEmail = sharedPreferences.getString('email')!;
+    Model.sharedInstance.showUnreadChat(userEmail).then((result){
+      setState((){
+        notifications = result!;
+        obtainedNotifications = true;
+      });
+    });
+  }
+
+  _attendData(){
+    return Padding(
+        padding: const EdgeInsets.all(50),
+        child:Center(child: CircularProgressIndicator()));
+  }
+
+
 }
+
 
 
 

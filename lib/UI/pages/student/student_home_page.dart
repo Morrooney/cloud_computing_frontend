@@ -9,7 +9,8 @@ import '../../../model/model.dart';
 import '../../../model/objects/entity/thesis.dart';
 import '../../components/dialog_window.dart';
 import '../../components/home_widget.dart';
-import '../common/recent_chats.dart';
+import '../common/notifications_page.dart';
+import '../common/search.dart';
 
 class StudentHomePage extends StatefulWidget {
   static const String route = '/studentHomePage';
@@ -42,11 +43,17 @@ class _StudentHomePageState extends State<StudentHomePage> {
         elevation: 0.1,
         backgroundColor:  Colors.red.shade900,
         centerTitle: true,
-        title: Text("Thesis"),
+        title: Text("Home"),
         actions: <Widget>[
-          new IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: null
+          IconButton(
+            icon: Icon(Icons.search),
+            iconSize: 30.0,
+            color: Colors.white,
+            onPressed: () {
+              Navigator.of(context).pushNamed(
+                  Search.route
+              );
+            },
           ),
         ],
       ),
@@ -74,7 +81,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
             InkWell(
               onTap: () {
 
-                Navigator.of(context).pushNamed(RecentChats.route);
+                Navigator.of(context).pushNamed(NotificationsPage.route);
               },
               child: ListTile(
                 title: Text("notifications"),
@@ -87,7 +94,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 showDialog(
                     context: context,
                     builder: (context){
-                      return DialogWindow(title: "About", content: "A simple platform for \n the management of \n degree theses");;
+                      return DialogWindow(title: "About", content: "A simple platform for \n the management of \n degree theses");
                     });
               },
               child: ListTile(
@@ -114,12 +121,23 @@ class _StudentHomePageState extends State<StudentHomePage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String docentEmail = sharedPreferences.getString('email')!;
     Model.sharedInstance.showStudentThesis(docentEmail).then((value){
+      if(value != null){
       Navigator.of(context).pushNamed(
         ThesisDetails.route,
-        arguments: value!.toJson(),
+        arguments: value.toJson(),
       );
+      }
+      else
+      {
+        showDialog(
+            context: context,
+            builder: (context){
+              return DialogWindow(title: "Sorry!", content: "You don't have a thesis yet");
+            });
+      }
     });
   }
+
   _attendData(){
     return Padding(
         padding: const EdgeInsets.all(50),

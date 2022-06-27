@@ -32,8 +32,6 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar:buildAppBar(context),
       body: _studentObtained? _buildBody() : _attendData(),
@@ -49,7 +47,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
        Center(
          child: Padding(
            padding: const EdgeInsets.all(10),
-           child:CirculaProfile(100.0,'S','M'),
+           child:CirculaProfile(100.0,_student.name,_student.surname),
          ),
        ),
        const SizedBox(height:10),
@@ -72,19 +70,30 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
    );
   }
 
-  Widget _buildName() => Column(
-    children: [
-      Text(
-        '${_student.name}',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        '${_student.surname}',
-        style: TextStyle(color: Colors.grey),
-      )
-    ],
-  );
+  AppBar buildAppBar(BuildContext context)
+  {
+    return AppBar(
+      leading: BackButton(),
+      backgroundColor: Colors.red.shade900,
+      elevation: 0,
+    );
+  }
+
+  Widget _buildName(){
+    return Column(
+      children: [
+        Text(
+          '${_student.name}',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${_student.surname}',
+          style: TextStyle(color: Colors.grey),
+        )
+      ],
+    );
+  }
 
 
   Future<void> _pullData() async {
@@ -100,22 +109,12 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           degreeCourse: sharedPreferences.getString('degreeCourse')!,);
       _studentObtained = true;
     });
-
-    // print(user.toString() + "*");
   }
+  _attendData(){
+    return Padding(
+        padding: const EdgeInsets.all(50),
+        child:Center(child: CircularProgressIndicator()));
+  }
+
 }
 
-_attendData(){
-  return Padding(
-      padding: const EdgeInsets.all(50),
-      child:Center(child: CircularProgressIndicator()));
-}
-
-AppBar buildAppBar(BuildContext context)
-{
-  return AppBar(
-    leading: BackButton(),
-    backgroundColor: Colors.red.shade900,
-    elevation: 0,
-  );
-}

@@ -3,6 +3,8 @@ import 'package:cloud_computing_frontend/UI/pages/common/chat_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../model/objects/entity/docent.dart';
+import '../../components/circular_profile.dart';
 import '../../components/row_detail.dart';
 
 
@@ -18,19 +20,14 @@ class DocentProfileChatPage extends StatefulWidget {
 
 class _DocentProfileChatPageState extends State<DocentProfileChatPage> {
 
-  //User user;
-
-  /*
-  @override
-  void initState(){
-    _pullData();
-    super.initState();
-  }*/
-
+  late Docent docent;
 
   @override
   Widget build(BuildContext context) {
 
+    Map<String,dynamic> args = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
+
+    docent = Docent.fromJson(args);
 
     return Scaffold(
       appBar:buildAppBar(context),
@@ -40,20 +37,11 @@ class _DocentProfileChatPageState extends State<DocentProfileChatPage> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child:CircularProfileAvatar(
-                '',
-                radius: 100,
-                backgroundColor: Colors.red.shade700,
-                borderWidth: 2,
-                initialsText: Text(
-                  'S' + 'M',
-                  style: TextStyle(color:Colors.red.shade100,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'QuickSand',
-                      fontSize: 70
-                  ),
+              child:Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child:CirculaProfile(100.0,docent.name,docent.surname),
                 ),
-                borderColor: Colors.red.shade900,
               ),
             ),
           ),
@@ -66,24 +54,25 @@ class _DocentProfileChatPageState extends State<DocentProfileChatPage> {
                 child: new IconButton(
                   icon: new Icon(CupertinoIcons.chat_bubble_text),
                   onPressed: (){
-                    Navigator.of(context).pushNamed(ChatPage.route);
+                    Navigator.of(context).pushNamed(
+                        ChatPage.route,
+                        arguments: {"senderEmail": docent.email},
+                    );
                   },
                 ),
               ),
             ],
           ),
           Divider(),
-          RowDetail("FirstName","name"),
+          RowDetail("FirstName",docent.name),
           Divider(),
-          RowDetail("LastName","surname"),
+          RowDetail("LastName",docent.surname),
           Divider(),
-          RowDetail("Email","email"),
+          RowDetail("Email",docent.email),
           Divider(),
-          RowDetail("Department","department"),
+          RowDetail("Department",docent.department),
           Divider(),
-          RowDetail("Degree Course","degree course"),
-          Divider(),
-          RowDetail("Card number","name"),
+          RowDetail("Card number",docent.cardNumber),
           Divider(),
         ],
       ),
@@ -91,44 +80,28 @@ class _DocentProfileChatPageState extends State<DocentProfileChatPage> {
   }
 
 
-  Widget buildName() => Column(
-    children: [
-      Text(
-        'Stefano',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        'Morrone',
-        style: TextStyle(color: Colors.grey),
-      )
-    ],
-  );
+  Widget buildName(){
+   return Column(
+     children: [
+       Text(
+         docent.name,
+         style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
+       ),
+       const SizedBox(height: 4),
+       Text(
+         docent.surname,
+         style: TextStyle(color: Colors.grey),
+       )
+     ],
+   );
+  }
 
-/*
-
-  Future<void> _pullData() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      User user1 = new User(
-          firstName : sharedPreferences.getString('firstName'),
-          lastName : sharedPreferences.getString('lastName'),
-          address :sharedPreferences.getString('address'),
-          email :sharedPreferences.getString('email'),
-          telephoneNumber : sharedPreferences.getString('telephoneNumber'),
-          id : sharedPreferences.getInt('id'));
-      user = user1;
-    });
-
-    // print(user.toString() + "*");
-  }*/
-}
-
-AppBar buildAppBar(BuildContext context)
-{
-  return AppBar(
-    leading: BackButton(),
-    backgroundColor: Colors.red.shade900,
-    elevation: 0,
-  );
+  AppBar buildAppBar(BuildContext context)
+  {
+    return AppBar(
+      leading: BackButton(),
+      backgroundColor: Colors.red.shade900,
+      elevation: 0,
+    );
+  }
 }

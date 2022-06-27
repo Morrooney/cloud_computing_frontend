@@ -2,8 +2,10 @@ import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../model/objects/entity/student.dart';
 import '../../components/circular_profile.dart';
 import '../../components/row_detail.dart';
+import 'chat_page.dart';
 
 
 
@@ -18,19 +20,14 @@ class StudentProfileChatPage extends StatefulWidget {
 
 class _StudentProfileChatPageState extends State<StudentProfileChatPage> {
 
-  //User user;
-
-  /*
-  @override
-  void initState(){
-    _pullData();
-    super.initState();
-  }*/
-
+  late Student student;
 
   @override
   Widget build(BuildContext context) {
 
+    Map<String,dynamic> args = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
+
+    student = Student.fromJson(args);
 
     return Scaffold(
       appBar:buildAppBar(context),
@@ -40,7 +37,7 @@ class _StudentProfileChatPageState extends State<StudentProfileChatPage> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child:CirculaProfile(100.0,'S','M'),
+              child:CirculaProfile(100.0,student.name,student.surname),
             ),
           ),
           const SizedBox(height:24),
@@ -51,23 +48,28 @@ class _StudentProfileChatPageState extends State<StudentProfileChatPage> {
               Expanded(
                 child: new IconButton(
                   icon: new Icon(CupertinoIcons.chat_bubble_text),
-                  onPressed: null,
+                  onPressed: (){
+                    Navigator.of(context).pushNamed(
+                      ChatPage.route,
+                      arguments: {"senderEmail": student.email},
+                    );
+                  },
                 ),
               ),
             ],
           ),
           Divider(),
-          RowDetail("FirstName","name"),
+          RowDetail("FirstName", student.name),
           Divider(),
-          RowDetail("LastName","surname"),
+          RowDetail("LastName",student.surname),
           Divider(),
-          RowDetail("Email","email"),
+          RowDetail("Email", student.email),
           Divider(),
-          RowDetail("Department","department"),
+          RowDetail("Department",student.department),
           Divider(),
-          RowDetail("Degree Course","degree course"),
+          RowDetail("Degree Course",student.degreeCourse),
           Divider(),
-          RowDetail("registration number","name"),
+          RowDetail("registration number", student.registrationNumber),
           Divider(),
         ],
       ),
@@ -75,44 +77,30 @@ class _StudentProfileChatPageState extends State<StudentProfileChatPage> {
   }
 
 
-  Widget buildName() => Column(
-    children: [
-      Text(
-        'Stefano',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        'Morrone',
-        style: TextStyle(color: Colors.grey),
-      )
-    ],
-  );
+  Widget buildName(){
+    return Column(
+      children: [
+        Text(
+          student.name,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          student.surname,
+          style: TextStyle(color: Colors.grey),
+        )
+      ],
+    );
+  }
 
-/*
+  AppBar buildAppBar(BuildContext context)
+  {
+    return AppBar(
+      leading: BackButton(),
+      backgroundColor: Colors.red.shade900,
+      elevation: 0,
+    );
+  }
 
-  Future<void> _pullData() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      User user1 = new User(
-          firstName : sharedPreferences.getString('firstName'),
-          lastName : sharedPreferences.getString('lastName'),
-          address :sharedPreferences.getString('address'),
-          email :sharedPreferences.getString('email'),
-          telephoneNumber : sharedPreferences.getString('telephoneNumber'),
-          id : sharedPreferences.getInt('id'));
-      user = user1;
-    });
 
-    // print(user.toString() + "*");
-  }*/
-}
-
-AppBar buildAppBar(BuildContext context)
-{
-  return AppBar(
-    leading: BackButton(),
-    backgroundColor: Colors.red.shade900,
-    elevation: 0,
-  );
 }

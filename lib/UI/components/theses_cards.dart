@@ -72,18 +72,18 @@ class _SingleCardThesisState extends State<SingleCardThesis> {
         margin: EdgeInsets.fromLTRB(6.0,10, 6.0, 4.0),
         elevation: 3,
         child: ListTile(
-// ============================== LEADING SECTION ================================
+
           leading: new Icon(
             Icons.book,
             size: 30,
           ),
 
-//======================================== title section ==============================
+
           title: new Container(
             padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
             child: new Text('${widget.thesis.title}'),
           ),
-// =============================== subtitle section ================================
+
           subtitle: new Container(
             alignment: Alignment.topLeft,
             padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),

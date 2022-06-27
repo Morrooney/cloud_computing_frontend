@@ -32,8 +32,6 @@ class _DocentProfilePageState extends State<DocentProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar:_buildAppBar(),
       body:  _docentObtained? _buildBody() : _attendData(),
@@ -48,7 +46,7 @@ class _DocentProfilePageState extends State<DocentProfilePage> {
         Center(
           child: Padding(
             padding: const EdgeInsets.all(10),
-            child:CirculaProfile(100.0,'S','M'),
+            child:CirculaProfile(100.0,_docent.name,_docent.surname),
           ),
         ),
         const SizedBox(height:10),
@@ -71,19 +69,21 @@ class _DocentProfilePageState extends State<DocentProfilePage> {
 
 
 
-  Widget _buildName() => Column(
-    children: [
-      Text(
-        '${_docent.name}',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        '${_docent.surname}',
-        style: TextStyle(color: Colors.grey),
-      )
-    ],
-  );
+  Widget _buildName(){
+    return  Column(
+      children: [
+        Text(
+          '${_docent.name}',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize:24),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${_docent.surname}',
+          style: TextStyle(color: Colors.grey),
+        )
+      ],
+    );
+  }
 
   _buildAppBar()
   {
@@ -112,8 +112,6 @@ class _DocentProfilePageState extends State<DocentProfilePage> {
         id : sharedPreferences.getInt('id')!,);
       _docentObtained = true;
     });
-
-    // print(user.toString() + "*");
   }
 }
 

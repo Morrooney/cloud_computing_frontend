@@ -1,5 +1,9 @@
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_computing_frontend/UI/components/page_title.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../model/model.dart';
 
 class AddThesisPage extends StatefulWidget {
   static const String route = '/addThesis';
@@ -9,6 +13,9 @@ class AddThesisPage extends StatefulWidget {
 
 class _AddThesisPageState extends State<AddThesisPage> {
 
+  late String _title;
+  late String _type;
+  late String _studentEmail;
 
 
   final _formKey = GlobalKey<FormState>();
@@ -35,14 +42,48 @@ class _AddThesisPageState extends State<AddThesisPage> {
                           key: _formKey,
                           child: Column(
                             children: <Widget>[
-                              _buildTextForm('Title'),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  //border: OutlineInputBorder(),
+                                  labelText: "title",
+                                  labelStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red.shade900),
+                                ),
+                                validator: (value) => _validateRequired(value!),
+                                onSaved: (value) => _title = value!,
+                                onFieldSubmitted: null,
+                              ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
-                              _buildTextForm('Type'),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  //border: OutlineInputBorder(),
+                                  labelText: "type",
+                                  labelStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red.shade900),
+                                ),
+                                validator: (value) => _validateRequired(value!),
+                                onSaved: (value) => _type = value!,
+                                onFieldSubmitted: null,
+                              ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
-                              _buildTextForm('Student email'),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'student email',
+                                  labelStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color:Colors.red.shade900),
+                                ),
+                                validator: (value) => _validateRequired(value!),
+                                onSaved: (value) => _studentEmail = value!,
+                                onFieldSubmitted: null,
+                              ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
                               GestureDetector(
-                                onTap:null,
+                                onTap:(){
+                                  _addThesis();
+                                },
                                 child: Container(
                                   height: 40.0,
                                   child: Material(
@@ -68,22 +109,6 @@ class _AddThesisPageState extends State<AddThesisPage> {
             )));
   }
 
-
-  _buildTextForm(String text){
-    return TextFormField(
-      decoration: InputDecoration(
-        //border: OutlineInputBorder(),
-        labelText: text,
-        labelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.red.shade900),
-      ),
-      validator: null,
-      onSaved: null,
-    );
-  }
-
-/*
   _validateRequired(String value) {
     if (value.isEmpty || value == null)
       return "required";
@@ -91,46 +116,6 @@ class _AddThesisPageState extends State<AddThesisPage> {
       return null;
   }
 
-  _validateEmail(String value) {
-    if (value.isEmpty || value == null) {
-      return "required";
-    }
-    return null;
-  }
-
-  _validatePassword(String value) {
-    if (value.isEmpty || value == null)
-      return "required";
-    else if (value.length < 6)
-      return "pwd_min_6_char";
-    else if (value.length > 15)
-      return "pwd_max_25_char";
-    else
-      return null;
-  }
-
-  Future<void> _signup() async {
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Processing Data'),
-        duration: Duration(seconds: 1),
-      ));
-
-      User newUser = new User(
-          firstName: _firstName,
-          lastName: _lastName,
-          telephoneNumber: _telephoneNumber,
-          email: _email,
-          address: _address);
-      User created = await Model.sharedInstance.newUser(newUser, _password);
-      if (created == null)
-        _errorDialog("UNKWOWN ERROR");
-      else {
-        _successDialog("registered");
-      }
-    }
-  }
 
 
   _errorDialog(String title) {
@@ -154,5 +139,23 @@ class _AddThesisPageState extends State<AddThesisPage> {
         onConfirmBtnTap: () =>
         {Navigator.pop(context), Navigator.pop(context)});
   }
-  */
+
+Future<void> _addThesis() async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Processing Data'),
+      duration: Duration(seconds: 1),
+    ));
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String docentEmail = sharedPreferences.getString('email')!;
+    Model.sharedInstance.addThesis(_studentEmail,docentEmail,_title,_type).then((result){
+      if(result != null) _successDialog("Added");
+      else _errorDialog("not added");
+    });
+  }
+}
+
+
+
 }

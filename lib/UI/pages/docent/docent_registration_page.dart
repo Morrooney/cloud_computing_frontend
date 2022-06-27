@@ -1,4 +1,4 @@
-import 'package:cloud_computing_frontend/model/objects/entity/student.dart';
+import 'package:cloud_computing_frontend/model/objects/entity/docent.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,20 +6,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../model/model.dart';
 import '../../components/page_title.dart';
 
-class AddStudentPage extends StatefulWidget {
-  static const String route = '/addStudent';
+class AddDocentPage extends StatefulWidget {
+  static const String route = '/addDocent';
   @override
-  _AddStudentPageState createState() => _AddStudentPageState();
+  _AddDocentPageState createState() => _AddDocentPageState();
 }
 
-class _AddStudentPageState extends State<AddStudentPage> {
+class _AddDocentPageState extends State<AddDocentPage> {
 
   late String _name;
   late String _surname;
   late String _email;
-  late String _registrationNumber;
+  late String _cardNumber;
   late String _department;
-  late String _degreeCourse;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -79,21 +78,21 @@ class _AddStudentPageState extends State<AddStudentPage> {
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red.shade900),
                                 ),
-                                validator: (value) => _validateRequired(value!),
-                                onSaved: (value) => _email = value!,
-                                onFieldSubmitted: null,
+                                  validator: (value) => _validateRequired(value!),
+                                  onSaved: (value) => _email = value!,
+                                  onFieldSubmitted: null,
                               ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
                               TextFormField(
                                 decoration: InputDecoration(
                                   //border: OutlineInputBorder(),
-                                  labelText: "registration number",
+                                  labelText: "card number",
                                   labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red.shade900),
                                 ),
                                 validator: (value) => _validateRequired(value!),
-                                onSaved: (value) => _registrationNumber = value!,
+                                onSaved: (value) => _cardNumber = value!,
                                 onFieldSubmitted: null,
                               ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
@@ -110,22 +109,9 @@ class _AddStudentPageState extends State<AddStudentPage> {
                                 onFieldSubmitted: null,
                               ),
                               Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  //border: OutlineInputBorder(),
-                                  labelText: "degree Course",
-                                  labelStyle: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red.shade900),
-                                ),
-                                validator: (value) => _validateRequired(value!),
-                                onSaved: (value) => _degreeCourse = value!,
-                                onFieldSubmitted: null,
-                              ),
-                              Padding(padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0)),
                               GestureDetector(
                                 onTap:(){
-                                  _addStudent();
+                                  _addDocent();
                                 },
                                 child: Container(
                                   height: 40.0,
@@ -182,7 +168,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
         {Navigator.pop(context), Navigator.pop(context)});
   }
 
-  Future<void> _addStudent() async {
+  Future<void> _addDocent() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -190,8 +176,8 @@ class _AddStudentPageState extends State<AddStudentPage> {
         duration: Duration(seconds: 1),
       ));
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      Student student = new Student(name: _name, surname: _surname, department: _department, email: _email, degreeCourse: _degreeCourse, registrationNumber: _registrationNumber);
-      Model.sharedInstance.addStudent(student).then((result){
+      Docent docent = new Docent(name: _name, surname: _surname, department: _department, email: _email, cardNumber: _cardNumber);
+      Model.sharedInstance.addDocent(docent).then((result){
         if(result != null) _successDialog("Added");
         else _errorDialog("not added");
       });

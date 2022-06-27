@@ -8,7 +8,7 @@ import '../../model/objects/file_data_model.dart';
 
 class DropZoneWidget extends StatefulWidget {
 
-  final ValueChanged<File_Data_Model> onDroppedFile;
+  final ValueChanged<FileDataModel> onDroppedFile;
 
   const DropZoneWidget({Key? key,required this.onDroppedFile}):super(key: key);
   @override
@@ -81,6 +81,7 @@ class _DropZoneWidgetState extends State<DropZoneWidget> {
     final mime = await controller.getFileMIME(event);
     final byte = await controller.getFileSize(event);
     final url = await controller.createFileUrl(event);
+    final stream = controller.getFileStream(event).asBroadcastStream();
 
     print('Name : $name');
     print('Mime: $mime');
@@ -88,8 +89,8 @@ class _DropZoneWidgetState extends State<DropZoneWidget> {
     print('Size : ${byte / (1024 * 1024)}');
     print('URL: $url');
 
-    final droppedFile = File_Data_Model
-      (name: name, mime: mime, bytes: byte, url: url);
+    final droppedFile = FileDataModel
+      (name: name, mime: mime,stream: stream, bytes: byte, url: url);
 
     widget.onDroppedFile(droppedFile);
     setState(() {

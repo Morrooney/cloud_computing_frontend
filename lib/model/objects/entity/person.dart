@@ -1,14 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Person {
-  int id;
+  int? id;
   String name;
   String surname;
   String department;
   String email;
 
 
-  Person({required this.id,required this.name, required this.surname, required this.department, required this.email});
+  Person({this.id,required this.name, required this.surname, required this.department, required this.email});
 
   //costruisci l'oggetto dart dall'oggeto json
   factory Person.fromJson(Map<String, dynamic> json) {
