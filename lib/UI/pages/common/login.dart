@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: GestureDetector(
                                 onTap: (){
                                   _isAStudent = false;
-                                  _login();
+                                  _fakeLogin();
                                 },
                                 child: Container(
                                   height: 40.0,
@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: GestureDetector(
                                 onTap:  (){
                                   _isAStudent = true;
-                                  _login();
+                                  _fakeLogin();
                                 },
                                 child: Container(
                                   height: 40.0,
@@ -216,6 +216,38 @@ class _LoginPageState extends State<LoginPage> {
     else
       return null;
   }
+  Future<void> _fakeLogin() async{
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Processing Data'),
+        duration: Duration(seconds: 1),
+      ));
+
+      _sharedPreferences = await SharedPreferences.getInstance();
+      _sharedPreferences.setBool("isAStudent", _isAStudent);
+
+
+
+            Student? student;
+            Docent? docent;
+            if(_isAStudent) student = await Model.sharedInstance.searchStudentByEmail(_email);
+            else  docent = await Model.sharedInstance.searchDocentByEmail(_email);
+            if (student != null) {
+              student.setUserPrefs();
+              Navigator.of(context).pushNamed(StudentHomePage.route);
+            }
+            else if(student == null && _isAStudent){
+              _showErrorDialog("Studente non trovato", "email o password sbagliata");
+            }
+            else if(docent != null){
+              docent.setUserPrefs();
+              Navigator.of(context).pushNamed(DocentHomePage.route);
+            }
+            else _showErrorDialog("Docente non trovato", "wrong email or password");
+
+    }
+  }
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
@@ -228,14 +260,14 @@ class _LoginPageState extends State<LoginPage> {
       _sharedPreferences = await SharedPreferences.getInstance();
       _sharedPreferences.setBool("isAStudent", _isAStudent);
 
+
       await _getToken();
       switch (_loginResult) {
         case (LoginResult.logged):
           {
             Student? student;
             Docent? docent;
-            if(_isAStudent)
-            student = await Model.sharedInstance.searchStudentByEmail(_email);
+            if(_isAStudent) student = await Model.sharedInstance.searchStudentByEmail(_email);
             else  docent = await Model.sharedInstance.searchDocentByEmail(_email);
             if (student != null) {
               student.setUserPrefs();

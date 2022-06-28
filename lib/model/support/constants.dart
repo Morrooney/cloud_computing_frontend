@@ -4,7 +4,7 @@ const int MAX_NOP = 15;
 // addresses
 
 // WEB DEBUGGING
-const String ADDRESS_STORE_SERVER = "localhost:8081";
+const String ADDRESS_STORE_SERVER = "cloudbackend-env.eba-trfkdan4.us-west-1.elasticbeanstalk.com";
 const String ADDRESS_AUTHENTICATION_SERVER = "localhost:8080";
 
 

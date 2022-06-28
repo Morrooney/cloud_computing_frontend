@@ -24,7 +24,7 @@ class RestManager {
       uri = Uri.http(serverAddress, servicePath,value);
     MultipartRequest request = MultipartRequest('POST', uri);
     Map<String, String> headers = new Map();
-    //headers[HttpHeaders.authorizationHeader] = 'bearer $token';
+    headers[HttpHeaders.authorizationHeader] = 'bearer $token';
     request.headers.addAll(headers);
 
     if (files is List<FileDataModel>){
@@ -79,9 +79,13 @@ class RestManager {
         Map<String, String> headers = Map();
 
         headers[HttpHeaders.contentTypeHeader] = contentType!;
+
+
         if (token != null) {
+          print(token);
           headers[HttpHeaders.authorizationHeader] = 'bearer $token';
         }
+
         // making request
         switch (method) {
           case "post":{

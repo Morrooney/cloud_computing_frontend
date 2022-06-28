@@ -70,6 +70,7 @@ class Model{
       params["username"] = email;
       params["password"] = password;
       String result = (await _restManager.makePostRequest(ADDRESS_AUTHENTICATION_SERVER, REQUEST_LOGIN, params, type: TypeHeader.urlencoded)).body;
+      print(result.toString());
       _authenticationData = AuthenticationData.fromJson(jsonDecode(result));
       if ( _authenticationData.hasError() ) {
         if ( _authenticationData.error == "Invalid user credentials" ) {
@@ -151,8 +152,8 @@ class Model{
     params["docent_email"] = email;
     try{
       Response response = await _restManager.makeGetRequest(ADDRESS_STORE_SERVER, REQUEST_SEARCH_DOCENT_BY_EMAIL, params);
-      //print(response.body.toString());
-      if( response.statusCode == HttpStatus.notFound )return null;
+      print("response "+ response.headers.toString());
+      if( response.statusCode == HttpStatus.notFound ) return null;
       return Docent.fromJson(jsonDecode(response.body));
     }
     catch (e) {
